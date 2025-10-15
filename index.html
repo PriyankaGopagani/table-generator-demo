@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multiplication Table Generator</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --border: #e5e7eb;
+      --row-alt: #f9fafb;
+      --error: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, var(--bg), #eef2ff);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .app {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffffcc;
+      backdrop-filter: blur(4px);
+    }
+    header h1 {
+      font-size: 1.25rem;
+      margin: 0 0 6px 0;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .controls {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 18px 24px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      grid-column: 1 / -1;
+    }
+    @media (min-width: 520px) {
+      .field { grid-column: 1 / 2; }
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #fff;
+    }
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    button {
+      height: 46px;
+      padding: 0 16px;
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid #1d4ed8;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.05s ease, box-shadow 0.15s ease;
+    }
+    button:hover { box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25); }
+    button:active { transform: translateY(1px); }
+    .message {
+      grid-column: 1 / -1;
+      font-size: 0.95rem;
+      color: var(--error);
+      min-height: 1.2em;
+    }
+    .table-wrap {
+      padding: 0 24px 24px 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+    caption {
+      text-align: left;
+      font-weight: 700;
+      padding: 14px 16px;
+      color: #111827;
+      background: #f3f4f6;
+      border-bottom: 1px solid var(--border);
+    }
+    thead th {
+      text-align: left;
+      font-size: 0.9rem;
+      color: #374151;
+      background: #f9fafb;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+    }
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr:nth-child(even) td {
+      background: var(--row-alt);
+    }
+    .right { text-align: right; }
+    .center { text-align: center; color: #6b7280; }
+    footer {
+      padding: 14px 24px 20px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .small {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main class="app" role="main">
+    <header>
+      <h1>Multiplication Table Generator</h1>
+      <p>Enter any number to see its multiplication table from 1 to 10.</p>
+    </header>
+
+    <section class="controls" aria-label="Controls">
+      <div class="field">
+        <label for="numInput">Number</label>
+        <input id="numInput" name="number" type="number" step="any" placeholder="Enter a number, e.g., 7" value="5" />
+        <div class="small">Tip: Press Enter or click Generate.</div>
+      </div>
+      <button id="genBtn" type="button" aria-label="Generate multiplication table">Generate</button>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="table-wrap" aria-label="Results">
+      <table id="results">
+        <caption id="caption">Multiplication table for 5</caption>
+        <thead>
+          <tr>
+            <th class="right">i</th>
+            <th class="center">×</th>
+            <th class="right">Number</th>
+            <th class="center">=</th>
+            <th class="right">Result</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <footer>
+      MIT Licensed. See README for details.
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      const input = document.getElementById('numInput');
+      const btn = document.getElementById('genBtn');
+      const tbody = document.querySelector('#results tbody');
+      const caption = document.getElementById('caption');
+      const message = document.getElementById('message');
+
+      function clearTable() {
+        while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+      }
+
+      function formatNumber(n) {
+        // Simple formatting to avoid overly long decimals
+        // Keep up to 6 decimal places when necessary
+        const s = String(n);
+        if (!s.includes('.')) return s;
+        const num = Number(n);
+        return Number.isFinite(num) ? num.toFixed(6).replace(/\.?0+$/, '') : s;
+      }
+
+      function generate() {
+        const raw = input.value.trim();
+        if (raw === '') {
+          message.textContent = 'Please enter a number.';
+          caption.textContent = 'Multiplication table';
+          clearTable();
+          return;
+        }
+
+        const n = Number(raw);
+        if (!Number.isFinite(n)) {
+          message.textContent = 'That is not a valid number.';
+          caption.textContent = 'Multiplication table';
+          clearTable();
+          return;
+        }
+
+        message.textContent = '';
+        caption.textContent = `Multiplication table for ${formatNumber(n)}`;
+        clearTable();
+
+        for (let i = 1; i <= 10; i++) {
+          const tr = document.createElement('tr');
+
+          const tdI = document.createElement('td');
+          tdI.className = 'right';
+          tdI.textContent = i;
+
+          const tdMul = document.createElement('td');
+          tdMul.className = 'center';
+          tdMul.textContent = '×';
+
+          const tdN = document.createElement('td');
+          tdN.className = 'right';
+          tdN.textContent = formatNumber(n);
+
+          const tdEq = document.createElement('td');
+          tdEq.className = 'center';
+          tdEq.textContent = '=';
+
+          const tdRes = document.createElement('td');
+          tdRes.className = 'right';
+          tdRes.textContent = formatNumber(n * i);
+
+          tr.append(tdI, tdMul, tdN, tdEq, tdRes);
+          tbody.appendChild(tr);
+        }
+      }
+
+      btn.addEventListener('click', generate);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          generate();
+        }
+      });
+
+      // Generate initial table for default value
+      generate();
+    })();
+  </script>
+</body>
+</html>
